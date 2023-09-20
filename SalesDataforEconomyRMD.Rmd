@@ -1,0 +1,1114 @@
+---
+title: "SalesforEconomyDataAnalysis"
+author: "Malay Raj"
+date: "2023-09-19"
+output:
+  word_document: default
+  html_document: default
+---
+
+## SALES FOR ECONOMY DATA ANALYSIS :
+
+The dataset contains information about sales transactions, including details such as the customer's age, gender, location, and the products sold.
+
+## Loading Required Packages.
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(dplyr)
+library(ggplot2)
+library(skimr)
+library(plyr)
+library(lubridate)
+library(scales)
+library(plotly)
+library(data.table)
+```
+
+## Displaying my current working directory.
+
+```{r}
+getwd()
+```
+
+## Collecting the data.
+
+```{r}
+sales = read.csv("C:/Sales Data for Economy Data Analysis/salesforcourse-4fe2kehu.csv")
+```
+
+## Displaying the first six rows of dataset.
+
+```{r}
+head(sales)
+```
+
+## Checking the dimension of the dataset.
+
+```{r}
+dim(sales)
+```
+
+## Displaying the column names of our dataframe.
+
+```{r}
+colnames(sales)
+```
+
+## Inspecting the dataframe and look for inconguencies.
+
+```{r}
+str(sales)
+```
+
+## Changing the datatypes.
+
+```{r}
+sales$Date <- as.Date(sales$Date, format = "%m/%d/%Y")
+```
+
+## Checking if it's changed or not.
+
+```{r}
+str(sales)
+```
+
+## Removing certain columns from each of the datasets because we don't need them in our analysis.
+
+```{r}
+sales = subset(sales, select = -c(index, Year, Month, Column1))
+```
+
+## Checking the column names which are left for analysis.
+
+```{r}
+colnames(sales)
+```
+
+## Creating a new column of Year_Month from Date column.
+
+```{r}
+sales$Year_Month <- as.Date(paste(year(sales$Date), month(sales$Date), "01", sep = "-"))
+```
+
+
+## Checking for null values in our dataset.
+
+```{r}
+null_sum <- colSums(is.na(sales))
+null_sum
+```
+
+## Removing the null values.
+
+```{r}
+sales <- na.omit(sales)
+```
+
+## Checking if there is any null value left or not.
+
+```{r}
+sum(is.na(sales))
+```
+
+## Creating four more columns that we need in our analysis.
+
+```{r}
+sales$Unit_Margin <- sales$Unit.Price - sales$Unit.Cost
+sales$Unit_Margin_percent <- round((sales$Unit_Margin / sales$Unit.Price) * 100, 2)
+
+sales$Margin <- sales$Revenue - sales$Cost
+sales$Margin_percent <- round((sales$Margin / sales$Revenue) * 100, 2)
+```
+
+## Checking for any duplicate values in our dataset.
+
+```{r}
+anyDuplicated(sales)
+```
+
+## Removing those duplicate values.
+
+```{r}
+sales <- unique(sales)
+anyDuplicated(sales)
+```
+
+## Checking for the current dimensions of our dataset.
+
+```{r}
+dim(sales)
+```
+
+## Seeing how many observations fall under each of these column.
+
+```{r}
+table(sales$Customer.Age)
+```
+
+```{r}
+table(sales$Quantity)
+```
+
+```{r}
+table(sales$Date)
+```
+
+```{r}
+table(sales$Year_Month)
+```
+
+## CONDUCTNG DESCRIPTIVE ANALYSIS:
+
+Descriptive analysis on few columns of our dataset.
+
+```{r}
+summary(sales$Quantity)
+```
+
+```{r}
+summary(sales$Unit.Cost)
+```
+
+```{r}
+summary(sales$Unit.Price)
+```
+
+```{r}
+summary(sales$Unit_Margin)
+```
+
+```{r}
+summary(sales$Unit_Margin_percent)
+```
+
+```{r}
+summary(sales$Margin)
+```
+
+```{r}
+summary(sales$Margin_percent)
+```
+
+Comparing different columns with each other from each of our dataset.
+
+```{r}
+aggregate(sales$Quantity ~ sales$Customer.Age, data = sales, FUN = mean)
+aggregate(sales$Quantity ~ sales$Customer.Age, data = sales, FUN = median)
+aggregate(sales$Quantity ~ sales$Customer.Age, data = sales, FUN = max)
+aggregate(sales$Quantity ~ sales$Customer.Age, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit.Cost ~ sales$Customer.Age, data = sales, FUN = mean)
+aggregate(sales$Unit.Cost ~ sales$Customer.Age, data = sales, FUN = median)
+aggregate(sales$Unit.Cost ~ sales$Customer.Age, data = sales, FUN = max)
+aggregate(sales$Unit.Cost ~ sales$Customer.Age, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit.Price ~ sales$Customer.Age, data = sales, FUN = mean)
+aggregate(sales$Unit.Price ~ sales$Customer.Age, data = sales, FUN = median)
+aggregate(sales$Unit.Price ~ sales$Customer.Age, data = sales, FUN = max)
+aggregate(sales$Unit.Price ~ sales$Customer.Age, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Cost ~ sales$Customer.Age, data = sales, FUN = mean)
+aggregate(sales$Cost ~ sales$Customer.Age, data = sales, FUN = median)
+aggregate(sales$Cost ~ sales$Customer.Age, data = sales, FUN = max)
+aggregate(sales$Cost ~ sales$Customer.Age, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Revenue ~ sales$Customer.Age, data = sales, FUN = mean)
+aggregate(sales$Revenue ~ sales$Customer.Age, data = sales, FUN = median)
+aggregate(sales$Revenue ~ sales$Customer.Age, data = sales, FUN = max)
+aggregate(sales$Revenue ~ sales$Customer.Age, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit_Margin ~ sales$Customer.Age, data = sales, FUN = mean)
+aggregate(sales$Unit_Margin ~ sales$Customer.Age, data = sales, FUN = median)
+aggregate(sales$Unit_Margin ~ sales$Customer.Age, data = sales, FUN = max)
+aggregate(sales$Unit_Margin ~ sales$Customer.Age, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit_Margin_percent ~ sales$Customer.Age, data = sales, FUN = mean)
+aggregate(sales$Unit_Margin_percent ~ sales$Customer.Age, data = sales, FUN = median)
+aggregate(sales$Unit_Margin_percent ~ sales$Customer.Age, data = sales, FUN = max)
+aggregate(sales$Unit_Margin_percent ~ sales$Customer.Age, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Margin ~ sales$Customer.Age, data = sales, FUN = mean)
+aggregate(sales$Margin ~ sales$Customer.Age, data = sales, FUN = median)
+aggregate(sales$Margin ~ sales$Customer.Age, data = sales, FUN = max)
+aggregate(sales$Margin ~ sales$Customer.Age, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Margin_percent ~ sales$Customer.Age, data = sales, FUN = mean)
+aggregate(sales$Margin_percent ~ sales$Customer.Age, data = sales, FUN = median)
+aggregate(sales$Margin_percent ~ sales$Customer.Age, data = sales, FUN = max)
+aggregate(sales$Margin_percent ~ sales$Customer.Age, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Quantity ~ sales$Customer.Gender, data = sales, FUN = mean)
+aggregate(sales$Quantity ~ sales$Customer.Gender, data = sales, FUN = median)
+aggregate(sales$Quantity ~ sales$Customer.Gender, data = sales, FUN = max)
+aggregate(sales$Quantity ~ sales$Customer.Gender, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit.Cost ~ sales$Customer.Gender, data = sales, FUN = mean)
+aggregate(sales$Unit.Cost ~ sales$Customer.Gender, data = sales, FUN = median)
+aggregate(sales$Unit.Cost ~ sales$Customer.Gender, data = sales, FUN = max)
+aggregate(sales$Unit.Cost ~ sales$Customer.Gender, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit.Price ~ sales$Customer.Gender, data = sales, FUN = mean)
+aggregate(sales$Unit.Price ~ sales$Customer.Gender, data = sales, FUN = median)
+aggregate(sales$Unit.Price ~ sales$Customer.Gender, data = sales, FUN = max)
+aggregate(sales$Unit.Price ~ sales$Customer.Gender, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Cost ~ sales$Customer.Gender, data = sales, FUN = mean)
+aggregate(sales$Cost ~ sales$Customer.Gender, data = sales, FUN = median)
+aggregate(sales$Cost ~ sales$Customer.Gender, data = sales, FUN = max)
+aggregate(sales$Cost ~ sales$Customer.Gender, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Revenue ~ sales$Customer.Gender, data = sales, FUN = mean)
+aggregate(sales$Revenue ~ sales$Customer.Gender, data = sales, FUN = median)
+aggregate(sales$Revenue ~ sales$Customer.Gender, data = sales, FUN = max)
+aggregate(sales$Revenue ~ sales$Customer.Gender, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit_Margin ~ sales$Customer.Gender, data = sales, FUN = mean)
+aggregate(sales$Unit_Margin ~ sales$Customer.Gender, data = sales, FUN = median)
+aggregate(sales$Unit_Margin ~ sales$Customer.Gender, data = sales, FUN = max)
+aggregate(sales$Unit_Margin ~ sales$Customer.Gender, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit_Margin_percent ~ sales$Customer.Gender, data = sales, FUN = mean)
+aggregate(sales$Unit_Margin_percent ~ sales$Customer.Gender, data = sales, FUN = median)
+aggregate(sales$Unit_Margin_percent ~ sales$Customer.Gender, data = sales, FUN = max)
+aggregate(sales$Unit_Margin_percent ~ sales$Customer.Gender, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Margin ~ sales$Customer.Gender, data = sales, FUN = mean)
+aggregate(sales$Margin ~ sales$Customer.Gender, data = sales, FUN = median)
+aggregate(sales$Margin ~ sales$Customer.Gender, data = sales, FUN = max)
+aggregate(sales$Margin ~ sales$Customer.Gender, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Margin_percent ~ sales$Customer.Gender, data = sales, FUN = mean)
+aggregate(sales$Margin_percent ~ sales$Customer.Gender, data = sales, FUN = median)
+aggregate(sales$Margin_percent ~ sales$Customer.Gender, data = sales, FUN = max)
+aggregate(sales$Margin_percent ~ sales$Customer.Gender, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Customer.Age ~ sales$Country, data = sales, FUN = mean)
+aggregate(sales$Customer.Age ~ sales$Country, data = sales, FUN = median)
+aggregate(sales$Customer.Age ~ sales$Country, data = sales, FUN = max)
+aggregate(sales$Customer.Age ~ sales$Country, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Quantity ~ sales$Country, data = sales, FUN = mean)
+aggregate(sales$Quantity ~ sales$Country, data = sales, FUN = median)
+aggregate(sales$Quantity ~ sales$Country, data = sales, FUN = max)
+aggregate(sales$Quantity ~ sales$Country, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit.Cost ~ sales$Country, data = sales, FUN = mean)
+aggregate(sales$Unit.Cost ~ sales$Country, data = sales, FUN = median)
+aggregate(sales$Unit.Cost ~ sales$Country, data = sales, FUN = max)
+aggregate(sales$Unit.Cost ~ sales$Country, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit.Price ~ sales$Country, data = sales, FUN = mean)
+aggregate(sales$Unit.Price ~ sales$Country, data = sales, FUN = median)
+aggregate(sales$Unit.Price ~ sales$Country, data = sales, FUN = max)
+aggregate(sales$Unit.Price ~ sales$Country, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Cost ~ sales$Country, data = sales, FUN = mean)
+aggregate(sales$Cost ~ sales$Country, data = sales, FUN = median)
+aggregate(sales$Cost ~ sales$Country, data = sales, FUN = max)
+aggregate(sales$Cost ~ sales$Country, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Revenue ~ sales$Country, data = sales, FUN = mean)
+aggregate(sales$Revenue ~ sales$Country, data = sales, FUN = median)
+aggregate(sales$Revenue ~ sales$Country, data = sales, FUN = max)
+aggregate(sales$Revenue ~ sales$Country, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit_Margin ~ sales$Country, data = sales, FUN = mean)
+aggregate(sales$Unit_Margin ~ sales$Country, data = sales, FUN = median)
+aggregate(sales$Unit_Margin ~ sales$Country, data = sales, FUN = max)
+aggregate(sales$Unit_Margin ~ sales$Country, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit_Margin_percent ~ sales$Country, data = sales, FUN = mean)
+aggregate(sales$Unit_Margin_percent ~ sales$Country, data = sales, FUN = median)
+aggregate(sales$Unit_Margin_percent ~ sales$Country, data = sales, FUN = max)
+aggregate(sales$Unit_Margin_percent ~ sales$Country, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Margin ~ sales$Country, data = sales, FUN = mean)
+aggregate(sales$Margin ~ sales$Country, data = sales, FUN = median)
+aggregate(sales$Margin ~ sales$Country, data = sales, FUN = max)
+aggregate(sales$Margin ~ sales$Country, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Margin_percent ~ sales$Country, data = sales, FUN = mean)
+aggregate(sales$Margin_percent ~ sales$Country, data = sales, FUN = median)
+aggregate(sales$Margin_percent ~ sales$Country, data = sales, FUN = max)
+aggregate(sales$Margin_percent ~ sales$Country, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Customer.Age ~ sales$State, data = sales, FUN = mean)
+aggregate(sales$Customer.Age ~ sales$State, data = sales, FUN = median)
+aggregate(sales$Customer.Age ~ sales$State, data = sales, FUN = max)
+aggregate(sales$Customer.Age ~ sales$State, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Quantity ~ sales$State, data = sales, FUN = mean)
+aggregate(sales$Quantity ~ sales$State, data = sales, FUN = median)
+aggregate(sales$Quantity ~ sales$State, data = sales, FUN = max)
+aggregate(sales$Quantity ~ sales$State, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit.Cost ~ sales$State, data = sales, FUN = mean)
+aggregate(sales$Unit.Cost ~ sales$State, data = sales, FUN = median)
+aggregate(sales$Unit.Cost ~ sales$State, data = sales, FUN = max)
+aggregate(sales$Unit.Cost ~ sales$State, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit.Price ~ sales$State, data = sales, FUN = mean)
+aggregate(sales$Unit.Price ~ sales$State, data = sales, FUN = median)
+aggregate(sales$Unit.Price ~ sales$State, data = sales, FUN = max)
+aggregate(sales$Unit.Price ~ sales$State, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Cost ~ sales$State, data = sales, FUN = mean)
+aggregate(sales$Cost ~ sales$State, data = sales, FUN = median)
+aggregate(sales$Cost ~ sales$State, data = sales, FUN = max)
+aggregate(sales$Cost ~ sales$State, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Revenue ~ sales$State, data = sales, FUN = mean)
+aggregate(sales$Revenue ~ sales$State, data = sales, FUN = median)
+aggregate(sales$Revenue ~ sales$State, data = sales, FUN = max)
+aggregate(sales$Revenue ~ sales$State, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit_Margin ~ sales$State, data = sales, FUN = mean)
+aggregate(sales$Unit_Margin ~ sales$State, data = sales, FUN = median)
+aggregate(sales$Unit_Margin ~ sales$State, data = sales, FUN = max)
+aggregate(sales$Unit_Margin ~ sales$State, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit_Margin_percent ~ sales$State, data = sales, FUN = mean)
+aggregate(sales$Unit_Margin_percent ~ sales$State, data = sales, FUN = median)
+aggregate(sales$Unit_Margin_percent ~ sales$State, data = sales, FUN = max)
+aggregate(sales$Unit_Margin_percent ~ sales$State, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Margin ~ sales$State, data = sales, FUN = mean)
+aggregate(sales$Margin ~ sales$State, data = sales, FUN = median)
+aggregate(sales$Margin ~ sales$State, data = sales, FUN = max)
+aggregate(sales$Margin ~ sales$State, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Margin_percent ~ sales$State, data = sales, FUN = mean)
+aggregate(sales$Margin_percent ~ sales$State, data = sales, FUN = median)
+aggregate(sales$Margin_percent ~ sales$State, data = sales, FUN = max)
+aggregate(sales$Margin_percent ~ sales$State, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Customer.Age ~ sales$Product.Category, data = sales, FUN = mean)
+aggregate(sales$Customer.Age ~ sales$Product.Category, data = sales, FUN = median)
+aggregate(sales$Customer.Age ~ sales$Product.Category, data = sales, FUN = max)
+aggregate(sales$Customer.Age ~ sales$Product.Category, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Quantity ~ sales$Product.Category, data = sales, FUN = mean)
+aggregate(sales$Quantity ~ sales$Product.Category, data = sales, FUN = median)
+aggregate(sales$Quantity ~ sales$Product.Category, data = sales, FUN = max)
+aggregate(sales$Quantity ~ sales$Product.Category, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit.Cost ~ sales$Product.Category, data = sales, FUN = mean)
+aggregate(sales$Unit.Cost ~ sales$Product.Category, data = sales, FUN = median)
+aggregate(sales$Unit.Cost ~ sales$Product.Category, data = sales, FUN = max)
+aggregate(sales$Unit.Cost ~ sales$Product.Category, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit.Price ~ sales$Product.Category, data = sales, FUN = mean)
+aggregate(sales$Unit.Price ~ sales$Product.Category, data = sales, FUN = median)
+aggregate(sales$Unit.Price ~ sales$Product.Category, data = sales, FUN = max)
+aggregate(sales$Unit.Price ~ sales$Product.Category, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Cost ~ sales$Product.Category, data = sales, FUN = mean)
+aggregate(sales$Cost ~ sales$Product.Category, data = sales, FUN = median)
+aggregate(sales$Cost ~ sales$Product.Category, data = sales, FUN = max)
+aggregate(sales$Cost ~ sales$Product.Category, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Revenue ~ sales$Product.Category, data = sales, FUN = mean)
+aggregate(sales$Revenue ~ sales$Product.Category, data = sales, FUN = median)
+aggregate(sales$Revenue ~ sales$Product.Category, data = sales, FUN = max)
+aggregate(sales$Revenue ~ sales$Product.Category, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit_Margin ~ sales$Product.Category, data = sales, FUN = mean)
+aggregate(sales$Unit_Margin ~ sales$Product.Category, data = sales, FUN = median)
+aggregate(sales$Unit_Margin ~ sales$Product.Category, data = sales, FUN = max)
+aggregate(sales$Unit_Margin ~ sales$Product.Category, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit_Margin_percent ~ sales$Product.Category, data = sales, FUN = mean)
+aggregate(sales$Unit_Margin_percent ~ sales$Product.Category, data = sales, FUN = median)
+aggregate(sales$Unit_Margin_percent ~ sales$Product.Category, data = sales, FUN = max)
+aggregate(sales$Unit_Margin_percent ~ sales$Product.Category, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Margin ~ sales$Product.Category, data = sales, FUN = mean)
+aggregate(sales$Margin ~ sales$Product.Category, data = sales, FUN = median)
+aggregate(sales$Margin ~ sales$Product.Category, data = sales, FUN = max)
+aggregate(sales$Margin ~ sales$Product.Category, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Margin_percent ~ sales$Product.Category, data = sales, FUN = mean)
+aggregate(sales$Margin_percent ~ sales$Product.Category, data = sales, FUN = median)
+aggregate(sales$Margin_percent ~ sales$Product.Category, data = sales, FUN = max)
+aggregate(sales$Margin_percent ~ sales$Product.Category, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Customer.Age ~ sales$Sub.Category, data = sales, FUN = mean)
+aggregate(sales$Customer.Age ~ sales$Sub.Category, data = sales, FUN = median)
+aggregate(sales$Customer.Age ~ sales$Sub.Category, data = sales, FUN = max)
+aggregate(sales$Customer.Age ~ sales$Sub.Category, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Quantity ~ sales$Sub.Category, data = sales, FUN = mean)
+aggregate(sales$Quantity ~ sales$Sub.Category, data = sales, FUN = median)
+aggregate(sales$Quantity ~ sales$Sub.Category, data = sales, FUN = max)
+aggregate(sales$Quantity ~ sales$Sub.Category, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit.Cost ~ sales$Sub.Category, data = sales, FUN = mean)
+aggregate(sales$Unit.Cost ~ sales$Sub.Category, data = sales, FUN = median)
+aggregate(sales$Unit.Cost ~ sales$Sub.Category, data = sales, FUN = max)
+aggregate(sales$Unit.Cost ~ sales$Sub.Category, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit.Price ~ sales$Sub.Category, data = sales, FUN = mean)
+aggregate(sales$Unit.Price ~ sales$Sub.Category, data = sales, FUN = median)
+aggregate(sales$Unit.Price ~ sales$Sub.Category, data = sales, FUN = max)
+aggregate(sales$Unit.Price ~ sales$Sub.Category, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Cost ~ sales$Sub.Category, data = sales, FUN = mean)
+aggregate(sales$Cost ~ sales$Sub.Category, data = sales, FUN = median)
+aggregate(sales$Cost ~ sales$Sub.Category, data = sales, FUN = max)
+aggregate(sales$Cost ~ sales$Sub.Category, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Revenue ~ sales$Sub.Category, data = sales, FUN = mean)
+aggregate(sales$Revenue ~ sales$Sub.Category, data = sales, FUN = median)
+aggregate(sales$Revenue ~ sales$Sub.Category, data = sales, FUN = max)
+aggregate(sales$Revenue ~ sales$Sub.Category, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit_Margin ~ sales$Sub.Category, data = sales, FUN = mean)
+aggregate(sales$Unit_Margin ~ sales$Sub.Category, data = sales, FUN = median)
+aggregate(sales$Unit_Margin ~ sales$Sub.Category, data = sales, FUN = max)
+aggregate(sales$Unit_Margin ~ sales$Sub.Category, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit_Margin_percent ~ sales$Sub.Category, data = sales, FUN = mean)
+aggregate(sales$Unit_Margin_percent ~ sales$Sub.Category, data = sales, FUN = median)
+aggregate(sales$Unit_Margin_percent ~ sales$Sub.Category, data = sales, FUN = max)
+aggregate(sales$Unit_Margin_percent ~ sales$Sub.Category, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Margin ~ sales$Sub.Category, data = sales, FUN = mean)
+aggregate(sales$Margin ~ sales$Sub.Category, data = sales, FUN = median)
+aggregate(sales$Margin ~ sales$Sub.Category, data = sales, FUN = max)
+aggregate(sales$Margin ~ sales$Sub.Category, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Margin_percent ~ sales$Sub.Category, data = sales, FUN = mean)
+aggregate(sales$Margin_percent ~ sales$Sub.Category, data = sales, FUN = median)
+aggregate(sales$Margin_percent ~ sales$Sub.Category, data = sales, FUN = max)
+aggregate(sales$Margin_percent ~ sales$Sub.Category, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Quantity ~ sales$Year_Month, data = sales, FUN = mean)
+aggregate(sales$Quantity ~ sales$Year_Month, data = sales, FUN = median)
+aggregate(sales$Quantity ~ sales$Year_Month, data = sales, FUN = max)
+aggregate(sales$Quantity ~ sales$Year_Month, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit.Cost ~ sales$Year_Month, data = sales, FUN = mean)
+aggregate(sales$Unit.Cost ~ sales$Year_Month, data = sales, FUN = median)
+aggregate(sales$Unit.Cost ~ sales$Year_Month, data = sales, FUN = max)
+aggregate(sales$Unit.Cost ~ sales$Year_Month, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit.Price ~ sales$Year_Month, data = sales, FUN = mean)
+aggregate(sales$Unit.Price ~ sales$Year_Month, data = sales, FUN = median)
+aggregate(sales$Unit.Price ~ sales$Year_Month, data = sales, FUN = max)
+aggregate(sales$Unit.Price ~ sales$Year_Month, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Cost ~ sales$Year_Month, data = sales, FUN = mean)
+aggregate(sales$Cost ~ sales$Year_Month, data = sales, FUN = median)
+aggregate(sales$Cost ~ sales$Year_Month, data = sales, FUN = max)
+aggregate(sales$Cost ~ sales$Year_Month, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Revenue ~ sales$Year_Month, data = sales, FUN = mean)
+aggregate(sales$Revenue ~ sales$Year_Month, data = sales, FUN = median)
+aggregate(sales$Revenue ~ sales$Year_Month, data = sales, FUN = max)
+aggregate(sales$Revenue ~ sales$Year_Month, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit_Margin ~ sales$Year_Month, data = sales, FUN = mean)
+aggregate(sales$Unit_Margin ~ sales$Year_Month, data = sales, FUN = median)
+aggregate(sales$Unit_Margin ~ sales$Year_Month, data = sales, FUN = max)
+aggregate(sales$Unit_Margin ~ sales$Year_Month, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Unit_Margin_percent ~ sales$Year_Month, data = sales, FUN = mean)
+aggregate(sales$Unit_Margin_percent ~ sales$Year_Month, data = sales, FUN = median)
+aggregate(sales$Unit_Margin_percent ~ sales$Year_Month, data = sales, FUN = max)
+aggregate(sales$Unit_Margin_percent ~ sales$Year_Month, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Margin ~ sales$Year_Month, data = sales, FUN = mean)
+aggregate(sales$Margin ~ sales$Year_Month, data = sales, FUN = median)
+aggregate(sales$Margin ~ sales$Year_Month, data = sales, FUN = max)
+aggregate(sales$Margin ~ sales$Year_Month, data = sales, FUN = min)
+```
+
+```{r}
+aggregate(sales$Margin_percent ~ sales$Year_Month, data = sales, FUN = mean)
+aggregate(sales$Margin_percent ~ sales$Year_Month, data = sales, FUN = median)
+aggregate(sales$Margin_percent ~ sales$Year_Month, data = sales, FUN = max)
+aggregate(sales$Margin_percent ~ sales$Year_Month, data = sales, FUN = min)
+```
+
+## SUMMARY STATISTICS.
+
+```{r}
+skimr::skim_without_charts(sales)
+```
+
+## Comparing different columns of our dataframe with Year_Month.
+
+```{r}
+aggregate(sales$Unit.Cost ~ sales$Customer.Gender + sales$Year_Month, FUN = mean)
+aggregate(sales$Unit.Cost ~ sales$Country + sales$Year_Month, FUN = mean)
+aggregate(sales$Unit.Cost ~ sales$Product.Category + sales$Year_Month, FUN = mean)
+aggregate(sales$Unit.Cost ~ sales$Sub.Category + sales$Year_Month, FUN = mean)
+aggregate(sales$Unit.Price ~ sales$Customer.Gender + sales$Year_Month, FUN = mean)
+aggregate(sales$Unit.Price ~ sales$Country + sales$Year_Month, FUN = mean)
+aggregate(sales$Unit.Price ~ sales$Product.Category + sales$Year_Month, FUN = mean)
+aggregate(sales$Unit.Price ~ sales$Sub.Category + sales$Year_Month, FUN = mean)
+aggregate(sales$Cost ~ sales$Customer.Gender + sales$Year_Month, FUN = mean)
+aggregate(sales$Cost ~ sales$Country + sales$Year_Month, FUN = mean)
+aggregate(sales$Cost ~ sales$Product.Category + sales$Year_Month, FUN = mean)
+aggregate(sales$Cost ~ sales$Sub.Category + sales$Year_Month, FUN = mean)
+aggregate(sales$Revenue ~ sales$Customer.Gender + sales$Year_Month, FUN = mean)
+aggregate(sales$Revenue ~ sales$Country + sales$Year_Month, FUN = mean)
+aggregate(sales$Revenue ~ sales$Product.Category + sales$Year_Month, FUN = mean)
+aggregate(sales$Revenue ~ sales$Sub.Category + sales$Year_Month, FUN = mean)
+```
+
+## Data Visualization:
+
+Let's check for insights from Product category and Year_Month.
+
+```{r}
+ggplot(sales, aes(x = Year_Month, fill = Product.Category)) +
+  geom_bar() +
+  labs(title = "Count of Product Categories by Year and Month", x = "Year_Month", y = "Count") +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+Let's check for insights from Sub category and Year_Month.
+
+```{r}
+ggplot(sales, aes(x = Year_Month, fill = Sub.Category)) +
+  geom_bar() +
+  labs(title = "Count of Product Categories by Year and Month", x = "Year_Month", y = "Count") +
+  theme_minimal() +
+  theme(legend.text = element_text(size = 8), 
+        legend.title = element_text(size = 8),
+        legend.key.size = unit(0.3, "cm"))
+```
+
+Let's see in which year_month most of the revenue is generated.
+
+```{r}
+total_revenue <- sales %>%
+  group_by(Year_Month) %>%
+  summarise(Total_Revenue = sum(Revenue, na.rm = TRUE))
+ggplot(total_revenue, aes(x = Year_Month, y = Total_Revenue)) +
+  geom_smooth(method = 'loess', formula = 'y ~ x') +
+  labs(title = "Time Series by Revenue", x = "Year_Month", y = "Total Revenue") +
+  theme_minimal()
+```
+
+Let's see which age group people choose which product category.
+
+```{r}
+ggplot(sales, aes(x = Customer.Age, fill = Product.Category)) +
+  geom_bar() +
+  labs(title = "Count of Product Categories by Customer Age", x = "Year_Month", y = "Count") +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+Let's see which age group people choose which sub category.
+
+```{r}
+ggplot(sales, aes(x = Customer.Age, fill = Sub.Category)) +
+  geom_bar() +
+  labs(title = "Count of Sub Categories of Products by Customer Age", x = "Year_Month", y = "Count") +
+  theme_minimal() +
+  theme(legend.text = element_text(size = 8), 
+        legend.title = element_text(size = 8),
+        legend.key.size = unit(0.3, "cm"))
+```
+
+Let's see from which group of people most of the revenue was generated.
+
+```{r}
+total_revenue <- aggregate(Revenue ~ Customer.Age, data = sales, sum)
+ggplot(total_revenue, aes(x = Customer.Age, y = Revenue)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Total Revenue by Customer Age", x = "Customer Age", y = "Total Revenue") +
+  theme_minimal()
+```
+
+Let's see which gender of the customer choose which product category.
+
+```{r}
+ggplot(sales, aes(x = Customer.Gender, fill = Product.Category)) +
+  geom_bar() +
+  labs(title = "Count of Product Categories by Customer Gender", x = "Customer Gender", y = "Count") +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+Let's see which gender of the customer choose which sub category.
+
+```{r}
+ggplot(sales, aes(x = Customer.Gender, fill = Sub.Category)) +
+  geom_bar() +
+  labs(title = "Count of Sub Categories of Products by Customer Gender", x = "Customer Gender", y = "Count") +
+  theme_minimal() +
+  theme(legend.text = element_text(size = 8), 
+        legend.title = element_text(size = 8),
+        legend.key.size = unit(0.3, "cm"))
+```
+
+Let's see which country choose which product category and have the most revenue generated from it.
+
+```{r}
+total_revenue <- sales %>%
+  group_by(Country, Product.Category) %>%
+  summarise(Total_Revenue = sum(Revenue, na.rm = TRUE), .groups = "drop")
+ggplot(total_revenue, aes(x = Country, y = Total_Revenue, fill = Product.Category)) +
+  geom_col(position = "dodge") +
+  labs(title = "Total Revenue by Country and Product Category",
+       x = "Country",
+       y = "Total Revenue") +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+Now let's check for the same insights but with sub category.
+
+```{r}
+total_revenue <- sales %>%
+  group_by(Country, Sub.Category) %>%
+  summarise(Total_Revenue = sum(Revenue, na.rm = TRUE), .groups = "drop")
+ggplot(total_revenue, aes(x = Country, y = Total_Revenue, fill = Sub.Category)) +
+  geom_col(position = "dodge") +
+  labs(title = "Total Revenue by Country and Sub Category of Products",
+       x = "Country",
+       y = "Total Revenue") +
+  theme_minimal() +
+  theme(legend.text = element_text(size = 8), 
+        legend.title = element_text(size = 8),
+        legend.key.size = unit(0.3, "cm")) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+Let's see which state of the country France got the revenue generated.
+
+```{r}
+filtered_sales <- subset(sales, Country == "France")
+ggplot(filtered_sales, aes(x = State, y = sum(Revenue))) +
+  geom_bar(stat = "identity") +
+  labs(title = "Total Revenue by State in France", x = "State", y = "Total Revenue") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+Let's check for the same insights for the states of Germany.
+
+```{r}
+filtered_sales <- subset(sales, Country == "Germany")
+ggplot(filtered_sales, aes(x = State, y = sum(Revenue))) +
+  geom_bar(stat = "identity") +
+  labs(title = "Total Revenue by State in Germany", x = "State", y = "Total Revenue") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+Let's check for the same insights but for both UK and USA because there is only one state from UK.
+
+```{r}
+filtered_sales <- subset(sales, Country %in% c("United Kingdom", "United States"))
+ggplot(filtered_sales, aes(x = State, y = sum(Revenue))) +
+  geom_bar(stat = "identity") +
+  labs(title = "Total Revenue by State in the United Kingdom and United States", x = "State", y = "Total Revenue") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+Let's check for revenue distribution of prouct category in percentage values.
+
+```{r}
+total_revenue <- sales %>%
+  group_by(Product.Category) %>%
+  summarise(Total_Revenue = sum(Revenue, na.rm = TRUE))
+total_revenue$Percentage <- total_revenue$Total_Revenue / sum(total_revenue$Total_Revenue) * 100
+ggplot(total_revenue, aes(x = "", y = Total_Revenue, fill = Product.Category)) +
+  geom_bar(stat = "identity") +
+  coord_polar(theta = "y") +
+  geom_text(aes(label = paste0(round(Percentage, 1), "%")), position = position_stack(vjust = 0.5)) +
+  labs(title = "Revenue Distribution by Product Category", fill = "Product Category") +
+  theme_void()
+```
+
+Let's check for same insights but for sub category.
+
+```{r}
+total_revenue <- sales %>%
+  group_by(Sub.Category) %>%
+  summarise(Total_Revenue = sum(Revenue, na.rm = TRUE))
+total_revenue$Percentage <- total_revenue$Total_Revenue / sum(total_revenue$Total_Revenue) * 100
+ggplot(total_revenue, aes(x = "", y = Total_Revenue, fill = Sub.Category)) +
+  geom_bar(stat = "identity") +
+  coord_polar(theta = "y") +
+  labs(title = "Revenue Distribution by Sub Category of Products", fill = "Sub Category") +
+  theme_void() +
+  theme(legend.text = element_text(size = 8), 
+        legend.title = element_text(size = 8),
+        legend.key.size = unit(0.3, "cm"))
+```
+
+Let's check which product category was should in most quantity.
+
+```{r}
+ggplot(sales, aes(x = Product.Category, y = sum(Quantity))) +
+  geom_bar(stat = "identity") +
+  labs(title = "Quantity by Product Category of Products", x = "Product Category", y = "Quantity") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+Let's check for same insights but for sub category.
+
+```{r}
+ggplot(sales, aes(x = Sub.Category, y = sum(Quantity))) +
+  geom_bar(stat = "identity") +
+  labs(title = "Quantity by Sub Category of Products", x = "Sub Category", y = "Quantity") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+Let's check for product category distribution by quantity and revenue.
+
+```{r}
+total_data <- sales %>%
+  group_by(Product.Category) %>%
+  summarise(Total_Quantity = sum(Quantity, na.rm = TRUE),
+            Total_Revenue = sum(Revenue, na.rm = TRUE))
+total_data$Percentage_Quantity <- total_data$Total_Quantity / sum(total_data$Total_Quantity) * 100
+total_data$Percentage_Revenue <- total_data$Total_Revenue / sum(total_data$Total_Revenue) * 100
+ggplot(total_data, aes(x = "", y = 1, fill = Product.Category)) +
+  geom_bar(stat = "identity", width = 1) +
+  geom_text(aes(label = paste0(Product.Category, "\n",
+                               "Qty: ", round(Percentage_Quantity, 1), "%\n",
+                               "Rev: ", round(Percentage_Revenue, 1), "%")),
+            position = position_stack(vjust = 0.5),
+            size = 4) +
+  coord_polar(theta = "y") +
+  labs(title = "Product.Category Distribution by Quantity and Revenue",
+       fill = "Product Category") +
+  theme_void()
+```
+
+Let's check for same insights but for sub category.
+
+```{r}
+total_data <- sales %>%
+  group_by(Sub.Category) %>%
+  summarise(Total_Quantity = sum(Quantity, na.rm = TRUE),
+            Total_Revenue = sum(Revenue, na.rm = TRUE))
+ggplot(total_data, aes(x = Sub.Category)) +
+  geom_col(aes(y = Total_Quantity), fill = "blue", alpha = 0.5) +
+  geom_col(aes(y = Total_Revenue), fill = "red", alpha = 0.5) +
+  labs(title = "Sum of Quantity vs Revenue",
+       x = "Sub Category",
+       y = "Total Quantity/Revenue") +
+  theme_minimal() +
+  theme(legend.text = element_text(size = 8), 
+        legend.title = element_text(size = 8),
+        axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+Let's check which product category cost less and sold for more amount.
+
+```{r}
+total_data <- sales %>%
+  group_by(Product.Category) %>%
+  summarise(Mean_Cost = mean(Unit.Cost, na.rm = TRUE),
+            Mean_Price = mean(Unit.Price, na.rm = TRUE))
+ggplot(total_data, aes(x = Product.Category)) +
+  geom_col(aes(y = Mean_Cost), fill = "blue", alpha = 0.5) +
+  geom_col(aes(y = Mean_Price), fill = "red", alpha = 0.5) +
+  labs(title = "AVG of Unit Cost vs Unit Price",
+       x = "Product Category",
+       y = "AVG UnitCost/UnitPrice") +
+  theme_minimal() +
+  theme(legend.text = element_text(size = 8), 
+        legend.title = element_text(size = 8),
+        axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+Let's check for same insights but for sub category.
+
+```{r}
+total_data <- sales %>%
+  group_by(Sub.Category) %>%
+  summarise(Mean_Cost = mean(Unit.Cost, na.rm = TRUE),
+            Mean_Price = mean(Unit.Price, na.rm = TRUE))
+ggplot(total_data, aes(x = Sub.Category)) +
+  geom_col(aes(y = Mean_Cost), fill = "blue", alpha = 0.5) +
+  geom_col(aes(y = Mean_Price), fill = "red", alpha = 0.5) +
+  labs(title = "AVG of Unit Cost vs Unit Price",
+       x = "Sub Category",
+       y = "AVG UnitCost/UnitPrice") +
+  theme_minimal() +
+  theme(legend.text = element_text(size = 8), 
+        legend.title = element_text(size = 8),
+        axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+Let's compare the average of cost and revenue by product category.
+
+```{r}
+total_data <- sales %>%
+  group_by(Product.Category) %>%
+  summarise(Mean_Cost = mean(Cost, na.rm = TRUE),
+            Mean_Revenue = mean(Revenue, na.rm = TRUE))
+ggplot(total_data, aes(x = Product.Category)) +
+  geom_col(aes(y = Mean_Cost), fill = "blue", alpha = 0.5) +
+  geom_col(aes(y = Mean_Revenue), fill = "red", alpha = 0.5) +
+  labs(title = "AVG of Cost vs Revenue",
+       x = "Product Category",
+       y = "AVG Cost/Revenue") +
+  theme_minimal() +
+  theme(legend.text = element_text(size = 8), 
+        legend.title = element_text(size = 8),
+        axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+Let's check for the same insights but for sub category.
+
+```{r}
+total_data <- sales %>%
+  group_by(Sub.Category) %>%
+  summarise(Mean_Cost = mean(Cost, na.rm = TRUE),
+            Mean_Revenue = mean(Revenue, na.rm = TRUE))
+ggplot(total_data, aes(x = Sub.Category)) +
+  geom_col(aes(y = Mean_Cost), fill = "blue", alpha = 0.5) +
+  geom_col(aes(y = Mean_Revenue), fill = "red", alpha = 0.5) +
+  labs(title = "AVG of Cost vs Revenue",
+       x = "Sub Category",
+       y = "AVG Cost/Revenue") +
+  theme_minimal() +
+  theme(legend.text = element_text(size = 8), 
+        legend.title = element_text(size = 8),
+        axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+Let's check for the country with most unit margin.
+
+```{r}
+ggplot(sales, aes(x = Country, y = Unit_Margin)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Unit Margin by Countries", x = "Country", y = "Unit Margin") +
+  theme_minimal()
+```
+
+Let's check for the country with most unit margin percentage.
+
+```{r}
+ggplot(sales, aes(x = Country, y = Unit_Margin_percent)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Unit Margin Percentage by Countries", x = "Country", y = "Unit Margin") +
+  theme_minimal()
+```
+
+Let's check for the country with most margin and margin percentage.
+
+```{r}
+ggplot(sales, aes(x = Country, y = Margin)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Margin by Countries", x = "Country", y = "Unit Margin") +
+  theme_minimal()
+```
+
+```{r}
+ggplot(sales, aes(x = Country, y = Margin_percent)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Margin Percentage by Countries", x = "Country", y = "Unit Margin") +
+  theme_minimal()
+```
+
+Let's check which product category has the most unit margin, unit margin percentage, margine and margine percentage.
+
+```{r}
+ggplot(sales, aes(x = Product.Category, y = Unit_Margin)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Unit Margin Percentage by Product Category", x = "Country", y = "Unit Margin") +
+  theme_minimal()
+```
+
+```{r}
+ggplot(sales, aes(x = Product.Category, y = Unit_Margin_percent)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Unit Margin Percentage by Product Category", x = "Country", y = "Unit Margin") +
+  theme_minimal()
+```
+
+```{r}
+ggplot(sales, aes(x = Product.Category, y = Margin)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Unit Margin Percentage by Product Category", x = "Country", y = "Unit Margin") +
+  theme_minimal()
+```
+
+```{r}
+ggplot(sales, aes(x = Product.Category, y = Margin_percent)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Unit Margin Percentage by Product Category", x = "Country", y = "Unit Margin") +
+  theme_minimal()
+```
+
+Let's check for the same insights for all four column but of sub category.
+
+```{r}
+ggplot(sales, aes(x = Sub.Category, y = Unit_Margin)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Unit Margin Percentage by Product Category", x = "Country", y = "Unit Margin") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+```{r}
+ggplot(sales, aes(x = Sub.Category, y = Unit_Margin_percent)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Unit Margin Percentage by Product Category", x = "Country", y = "Unit Margin") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+```{r}
+ggplot(sales, aes(x = Sub.Category, y = Margin)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Unit Margin Percentage by Product Category", x = "Country", y = "Unit Margin") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+```{r}
+ggplot(sales, aes(x = Sub.Category, y = Margin_percent)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Unit Margin Percentage by Product Category", x = "Country", y = "Unit Margin") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
